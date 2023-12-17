@@ -4,6 +4,7 @@ import (
 	"github.com/EmreKb/todo-api/internal/adapter/handler/http"
 	"github.com/EmreKb/todo-api/internal/adapter/handler/http/middleware"
 	"github.com/EmreKb/todo-api/internal/adapter/repository"
+	"github.com/EmreKb/todo-api/internal/config"
 	"github.com/EmreKb/todo-api/internal/core/service"
 	"github.com/gofiber/fiber/v2"
 )
@@ -14,8 +15,11 @@ func main() {
 
 	app.Mount("/api", router)
 
+	// Load env
+	env := config.NewENV()
+
 	// Database Connection
-	db := repository.NewPostgresConnection("postgres://postgres:postgres@localhost:5432/todo")
+	db := repository.NewPostgresConnection(env.DB_URL)
 
 	// Repositories
 	userR := repository.NewUserRepository(db)
@@ -29,5 +33,5 @@ func main() {
 	// Route Maps
 	router.Post("/auth/register", middleware.ValidateMiddleware[http.RegisterRequestBody], authH.Register)
 
-	app.Listen(":3000")
+	app.Listen(":" + env.PORT)
 }

@@ -50,7 +50,7 @@ func (s *TokenService) ValidateAccessToken(t string) (*port.Payload, error) {
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return &port.Payload{Username: claims["username"].(string), Exp: claims["exp"].(int64)}, nil
+		return &port.Payload{Username: claims["username"].(string)}, nil
 	} else {
 		return nil, ErrJwtParseError
 	}

@@ -27,13 +27,20 @@ func main() {
 	// Services
 	tokenS := service.NewTokenService()
 	authS := service.NewAuthService(userR, tokenS)
+	userS := service.NewUserService(userR)
 
 	// Handlers
 	authH := http.NewAuthHandler(authS)
+	userH := http.NewUserHandler(userS)
 
 	// Route Maps
 	router.Post("/auth/register", middleware.ValidateMiddleware[http.RegisterRequestBody], authH.Register)
 	router.Post("/auth/login", middleware.ValidateMiddleware[http.LoginRequestBody], authH.Login)
+
+	// Middleware
+	jwtM := middleware.NewJwtMiddleware(tokenS)
+
+	router.Get("/users", jwtM.Middleware, userH.GetMe)
 
 	app.Listen(":" + env.PORT)
 }

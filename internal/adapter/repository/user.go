@@ -8,7 +8,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var ErrUsernameAlreadyExists = errors.New("Username already exists")
+var (
+	ErrUsernameAlreadyExists = errors.New("Username already exists")
+	ErrUserNotFound          = errors.New("User not found")
+)
 
 type UserRepository struct {
 	db *gorm.DB
@@ -29,4 +32,18 @@ func (r *UserRepository) Save(user *domain.User) (*domain.User, error) {
 	}
 
 	return user, nil
+}
+
+func (r *UserRepository) FindByUsername(username string) (*domain.User, error) {
+	u := &domain.User{Username: username}
+	err := r.db.First(u).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+
+	return u, nil
 }

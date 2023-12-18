@@ -25,13 +25,15 @@ func main() {
 	userR := repository.NewUserRepository(db)
 
 	// Services
-	authS := service.NewAuthService(userR)
+	tokenS := service.NewTokenService()
+	authS := service.NewAuthService(userR, tokenS)
 
 	// Handlers
 	authH := http.NewAuthHandler(authS)
 
 	// Route Maps
 	router.Post("/auth/register", middleware.ValidateMiddleware[http.RegisterRequestBody], authH.Register)
+	router.Post("/auth/login", middleware.ValidateMiddleware[http.LoginRequestBody], authH.Login)
 
 	app.Listen(":" + env.PORT)
 }

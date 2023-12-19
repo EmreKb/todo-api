@@ -1,0 +1,8 @@
+.vscode
+.idea
+
+.git
+.gitignore
+
+*_test.go
+*.md

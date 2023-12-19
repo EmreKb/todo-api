@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      DB_URL: postgres://postgres:postgres@postgres:5432/todo
+    networks:
+      - todo
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: todo
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - todo
+
+networks:
+  todo:
+    driver: bridge

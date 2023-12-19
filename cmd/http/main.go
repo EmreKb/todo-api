@@ -23,15 +23,18 @@ func main() {
 
 	// Repositories
 	userR := repository.NewUserRepository(db)
+	todoR := repository.NewTodoRepository(db)
 
 	// Services
 	tokenS := service.NewTokenService()
 	authS := service.NewAuthService(userR, tokenS)
 	userS := service.NewUserService(userR)
+	todoS := service.NewTodoService(todoR)
 
 	// Handlers
 	authH := http.NewAuthHandler(authS)
 	userH := http.NewUserHandler(userS)
+	todoH := http.NewTodoHandler(todoS, userS)
 
 	// Route Maps
 	router.Post("/auth/register", middleware.ValidateMiddleware[http.RegisterRequestBody], authH.Register)
@@ -41,6 +44,10 @@ func main() {
 	jwtM := middleware.NewJwtMiddleware(tokenS)
 
 	router.Get("/users", jwtM.Middleware, userH.GetMe)
+
+	router.Get("/todos", jwtM.Middleware, todoH.GetTodos)
+	router.Post("/todos", middleware.ValidateMiddleware[http.CreateTodoRequestBody], jwtM.Middleware, todoH.CreateTodo)
+	router.Get("/todos/:id", jwtM.Middleware, todoH.FindByID)
 
 	app.Listen(":" + env.PORT)
 }
